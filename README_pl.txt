@@ -1,4 +1,8 @@
-Zadanie polega na zaprojektowaniu i zaprogramowaniu prostego backendu (HTTP + REST) dla forum dyskusyjnego w stylu... http://kafeteria.pl/forum 
+Do rozwiązania poniższego zadania użyłem Spring boot, Hibernate i PostgreSQL. 
+Moim celem było otrzymanie kodu możliwie jak najbardziej wydajnego, minimalizując konieczność komunikacji z bazą danych. 
+Dodatkowo umożliwiłem edytowanie i usuwanie odpowiedzi (nie tylko tematu)
+
+Zadanie polegało na zaprojektowaniu i zaprogramowaniu prostego backendu (HTTP + REST) dla forum dyskusyjnego w stylu... http://kafeteria.pl/forum 
 Jako niezalogowany użytkownik:
 - mogę założyć nowy temat dyskusji, podając: temat, treść posta, pseudonim i adres email,
 - mogę odpowiedzieć na wybrany temat dyskusji, podając: treść posta, pseudonim i adres email,
