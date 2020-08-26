@@ -19,9 +19,12 @@ import com.ksynowiec.test.forum.PostTests;
 import lombok.Getter;
 
 
+/**
+ * Main test class for jUnit run or run as Java application (need server running first)
+ */
 @SpringBootTest(classes = ForumApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ForumApplicationTests {
-    
+
     @Getter
     @Value("${forum.max_limit}")
     private int MAX_LIMIT;
@@ -34,14 +37,14 @@ public class ForumApplicationTests {
     @LocalServerPort
     private int port;
     @Getter
-    
+
     private String url;
     private TestRestTemplate rest = new TestRestTemplate();
-
+    
     public static void main(String[] args) {
         new ForumApplicationTests().test();
     }
-
+    
     public ForumApplicationTests() {
         if (MAX_LIMIT == 0)
             MAX_LIMIT = 50;
@@ -52,15 +55,15 @@ public class ForumApplicationTests {
         if (RANGE == 0)
             RANGE = 10;
     }
-
+    
     private void sleep(int seconds) {
         try {
             Thread.sleep(seconds * 1000);
         } catch (InterruptedException e) {
         }
-        
-    }
 
+    }
+    
     @Test
     public void test() {
         url = "http://localhost:" + port + "/api/forum/";
@@ -68,23 +71,23 @@ public class ForumApplicationTests {
         PostTests postTests = new PostTests(this);
         LocalDateTime time = postTests.getTopSubjects();
         assertTrue(time == null, "Database must be empty");
-        
+
         postTests.addPosts(false, COUNT);
         answerTests.addAnswers(postTests.getPosts(), false, COUNT);
-        
+
         postTests.getTopSubjects();
         answerTests.getSortedAnswers(postTests.getPosts().firstKey());
-        
+
         postTests.addPosts(true, COUNT);
         answerTests.addAnswers(postTests.getPosts(), true, COUNT);
-        
+
         postTests.updatePosts();
         answerTests.updateAnswers();
-        
+
         postTests.checkAllPosts();
         answerTests.checkAllAnswers();
         postTests.deleteAllCreatedPosts();
-
+        
         System.out.println("All tests passed.");
     }
 }
