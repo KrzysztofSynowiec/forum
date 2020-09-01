@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
@@ -22,23 +21,23 @@ import com.ksynowiec.forum.model.Post;
 
 @Repository
 public class ForumDaoImp implements ForumDao {
-
+    
     @Autowired
     private EntityManagerFactory entityManagerFactory;
-
+    
     @PersistenceContext
     EntityManager entityManager;
-
+    
     @Override
     public Post getPost(Long id) {
         return entityManager.find(Post.class, id);
     }
-
+    
     @Override
     public Answer getAnswer(Long id) {
         return entityManager.find(Answer.class, id);
     }
-    
+
     @Override
     @Transactional
     public Post addPost(String nick, String email, String subject, String content) {
@@ -46,7 +45,7 @@ public class ForumDaoImp implements ForumDao {
         entityManager.persist(record);
         return record;
     }
-
+    
     @Override
     @Transactional
     public void updatePost(String secret, String newContent) {
@@ -62,7 +61,7 @@ public class ForumDaoImp implements ForumDao {
         if (result == 0)
             throw new ForumException("Wrong secret");
     }
-    
+
     @Override
     @Transactional
     public void deletePost(String secret) {
@@ -76,20 +75,20 @@ public class ForumDaoImp implements ForumDao {
         int result = q.executeUpdate();
         if (result == 0)
             throw new ForumException("Wrong secret");
-        entityManager.clear(); //cascade delete need to clear EntityManager
+        entityManager.clear(); //cascade delete needs to clear EntityManager
     }
-
+    
     @Override
     @Transactional
     public Answer answerPost(Long postId, String nick, String email, String content) {
-            Post post = entityManager.getReference(Post.class, postId);
-            Answer answer = new Answer(post, nick, email, content);
-            entityManager.persist(answer);
-            post.answer();
-            entityManager.persist(post);
-            return answer;
+        Post post = entityManager.getReference(Post.class, postId);
+        Answer answer = new Answer(post, nick, email, content);
+        entityManager.persist(answer);
+        post.answer();
+        entityManager.persist(post);
+        return answer;
     }
-
+    
     @Override
     public List<SubjectDTO> getTopSubjects(int offset, int limit) {
         String pql = "select new com.ksynowiec.forum.dto.SubjectDTO(p.id, p.createDate, p.lastUpdated, p.lastAnswered, p.nick, p.email, p.subject) from Post p order by lastAnswered desc NULLS LAST";
@@ -99,27 +98,27 @@ public class ForumDaoImp implements ForumDao {
         List<SubjectDTO> list = q.getResultList();
         return list;
     }
-
+    
     @Override
     public List<AnswerDTO> getAnswers(Long postId, int offset, int limit) {
-            Post post = entityManager.getReference(Post.class, postId);
-            String pql = "select new com.ksynowiec.forum.dto.AnswerDTO(a.id, a.post.id, a.createDate, a.lastUpdated, a.nick, a.email, a.content) from Answer a where a.post=:postId order by a.createDate asc";
-            Query q = entityManager.createQuery(pql, AnswerDTO.class);
-            q.setParameter("postId", post);
-            q.setFirstResult(offset);
-            q.setMaxResults(limit);
-            List<AnswerDTO> list = q.getResultList();
-            return list;
-    }
-
-    @Override
-    public long getAnswersCount(Long postId) {
-            Post post = entityManager.getReference(Post.class, postId);
-            String pql = "select count(*) from Answer a where a.post=:postId";
-            Query q = entityManager.createQuery(pql, Long.class);
-            q.setParameter("postId", post);
-            Long result = (Long) q.getSingleResult();
-            return result != null ? result : 0;
+        Post post = entityManager.getReference(Post.class, postId);
+        String pql = "select new com.ksynowiec.forum.dto.AnswerDTO(a.id, a.post.id, a.createDate, a.lastUpdated, a.nick, a.email, a.content) from Answer a where a.post=:postId order by a.createDate asc";
+        Query q = entityManager.createQuery(pql, AnswerDTO.class);
+        q.setParameter("postId", post);
+        q.setFirstResult(offset);
+        q.setMaxResults(limit);
+        List<AnswerDTO> list = q.getResultList();
+        return list;
     }
     
+    @Override
+    public long getAnswersCount(Long postId) {
+        Post post = entityManager.getReference(Post.class, postId);
+        String pql = "select count(*) from Answer a where a.post=:postId";
+        Query q = entityManager.createQuery(pql, Long.class);
+        q.setParameter("postId", post);
+        Long result = (Long) q.getSingleResult();
+        return result != null ? result : 0;
+    }
+
 }
